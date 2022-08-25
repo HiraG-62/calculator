@@ -20,3 +20,16 @@ C:\personal\電卓03\WindowsApplication1\WindowsApplication1\obj\x86\Debug\Windo
 C:\personal\電卓03\WindowsApplication1\WindowsApplication1\obj\x86\Debug\WindowsApplication1.Resources.resources
 C:\personal\電卓03\WindowsApplication1\WindowsApplication1\obj\x86\Debug\WindowsApplication1.vbproj.GenerateResource.cache
 C:\personal\電卓03\WindowsApplication1\WindowsApplication1\obj\x86\Debug\WindowsApplication1.vbproj.CoreCompileInputs.cache
+D:\programming\vb.net\calculator\WindowsApplication1\bin\Debug\WindowsApplication1.exe.config
+D:\programming\vb.net\calculator\WindowsApplication1\bin\Debug\WindowsApplication1.exe
+D:\programming\vb.net\calculator\WindowsApplication1\bin\Debug\WindowsApplication1.pdb
+D:\programming\vb.net\calculator\WindowsApplication1\bin\Debug\WindowsApplication1.xml
+D:\programming\vb.net\calculator\WindowsApplication1\obj\x86\Debug\WindowsApplication1.vbproj.AssemblyReference.cache
+D:\programming\vb.net\calculator\WindowsApplication1\obj\x86\Debug\WindowsApplication1.vbproj.SuggestedBindingRedirects.cache
+D:\programming\vb.net\calculator\WindowsApplication1\obj\x86\Debug\WindowsApplication1.Form_calc.resources
+D:\programming\vb.net\calculator\WindowsApplication1\obj\x86\Debug\WindowsApplication1.Resources.resources
+D:\programming\vb.net\calculator\WindowsApplication1\obj\x86\Debug\WindowsApplication1.vbproj.GenerateResource.cache
+D:\programming\vb.net\calculator\WindowsApplication1\obj\x86\Debug\WindowsApplication1.vbproj.CoreCompileInputs.cache
+D:\programming\vb.net\calculator\WindowsApplication1\obj\x86\Debug\WindowsApplication1.exe
+D:\programming\vb.net\calculator\WindowsApplication1\obj\x86\Debug\WindowsApplication1.xml
+D:\programming\vb.net\calculator\WindowsApplication1\obj\x86\Debug\WindowsApplication1.pdb

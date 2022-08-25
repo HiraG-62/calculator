@@ -69,7 +69,7 @@ Public Class Form_calc
     '入力した演算子をTextBoxに出力
     Function setTextOp(opSender As Button)
         If currentVal IsNot Nothing Then
-            If Not allOp.IsMatch(currentVal) Then
+            If Not fourArithOp.IsMatch(currentVal) Then
                 currentVal = opSender.Text
                 TextBox_form.Text += currentVal
                 enterNum = Nothing
@@ -80,7 +80,7 @@ Public Class Form_calc
     'キーボードから入力した演算子をTextBoxに出力
     Function setTextOpKey(opKey)
         If currentVal IsNot Nothing Then
-            If Not allOp.IsMatch(currentVal) Then
+            If Not fourArithOp.IsMatch(currentVal) Then
                 currentVal = opKey
                 TextBox_form.Text += currentVal
                 enterNum = Nothing
@@ -125,13 +125,10 @@ Public Class Form_calc
         Dim bktList = New List(Of String)()
         Dim bkeStack = New Stack(Of Object)()
 
-        calcList = (Regex.Split(resultFormula, "([\+\-×÷()])"))
-        For Each i In calcList
-            debugLog(i)
-        Next
+        calcList = (Regex.Split(resultFormula, "([\+\-×÷()²])"))
 
         Dim rx0 = New Regex("[\+\-×÷]", RegexOptions.Compiled)
-        Dim rx1 = New Regex("[\+\-]", RegexOptions.Compiled)
+        Dim rx1 = New Regex("[²]", RegexOptions.Compiled)
         Dim rx2 = New Regex("[×÷]", RegexOptions.Compiled)
 
         Dim bkt As Integer = 0
@@ -140,16 +137,13 @@ Public Class Form_calc
             '数値の処理
             If obj = "(" Then
                 bkt += 1
-                debugLogLine(bkt)
             End If
             If bkt > 0 Then
                 bktList.Add(obj)
                 If obj = ")" Then
                     bkt -= 1
-                    debugLogLine(bkt)
                 End If
                 If bkt = 0 Then
-                    debugLogLine("d")
                     bktList.RemoveRange(0, bktList.IndexOf("(") + 1)
                     bktList.RemoveAt(bktList.LastIndexOf(")"))
                     Dim joinBktString = String.Join("", bktList.ToArray())
@@ -158,12 +152,13 @@ Public Class Form_calc
                         numList.Add(bktItem)
                     Next
                 End If
-            ElseIf IsNumeric(obj) Or obj.Contains("%") Or obj.Contains("²") Then
+            ElseIf IsNumeric(obj) Or obj.contains("%") Or obj = "²" Then
                 numList.Add(obj)
                 '演算記号の処理開始
             ElseIf rx0.IsMatch(obj) Then
                 'stackが空ならそのままpush
                 If opStack.Count = 0 Then
+                    'ElseIf rx1.IsMatch(opStack.Peek())
                     'stackの先頭が×か÷のときの演算子処理
                 ElseIf rx2.IsMatch(opStack.Peek()) And rx2.IsMatch(obj) Then
                     'stackの先頭が×か÷のときのみその演算子をadd(+と-は残る)
@@ -185,6 +180,11 @@ Public Class Form_calc
             numList.Add(opStack.Pop())
         Next
 
+        For Each i In numList
+            debugLog(i)
+        Next
+        debugLogLine("")
+
         Return numList
     End Function
 
@@ -195,8 +195,10 @@ Public Class Form_calc
         Dim calcStack = New Stack(Of Object)
 
         For Each f In formulaRpn
+            debugLogLine("c")
             'stackから取り出した演算記号にしたがって計算する
             If allOp.IsMatch(f) Then
+                debugLogLine("a")
                 Select Case f
                     Case "+"
                         calcVal = calcStack.Pop() + calcStack.Pop()
@@ -211,18 +213,24 @@ Public Class Form_calc
                         Dim divNum As Double = calcStack.Pop()
                         calcVal = calcStack.Pop() / divNum
                         calcStack.Push(calcVal)
+                    Case "²"
+                        calcVal = calcStack.Pop() ^ 2
+                        calcStack.Push(calcVal)
                 End Select
 
             Else
+                debugLogLine("b")
                 '百分率表記の場合の修正
                 If f.IndexOf("%") > 0 Then
                     f = Double.Parse(f.replace("%", "")) * 0.01
-                ElseIf f.IndexOf("²") > 0 Then
-                    f = Double.Parse(f.replace("²", "")) ^ 2
                 End If
                 f = Double.Parse(f)
                 calcStack.Push(f)
             End If
+        Next
+
+        For Each i In calcStack
+            debugLogLine(i)
         Next
 
         Return calcStack.Peek()
@@ -237,7 +245,8 @@ Public Class Form_calc
     Dim answer As Double = 0
     Dim bktCnt As Integer = 0
     Dim calcList = New List(Of Object)()
-    Dim allOp = New Regex("[\+\-×÷]", RegexOptions.Compiled)
+    Dim fourArithOp = New Regex("[\+\-×÷]", RegexOptions.Compiled)
+    Dim allOp = New Regex("[\+\-×÷²]", RegexOptions.Compiled)
     Dim bhdSym = New Regex("[²%)]\z", RegexOptions.Compiled)
     Dim headSym = New Regex("[√]", RegexOptions.Compiled)
 
@@ -335,12 +344,19 @@ Public Class Form_calc
     End Sub
 
     Private Sub Button_equal_Click(sender As System.Object, e As System.EventArgs) Handles Button_equal.Click
-        If Not allOp.IsMatch(currentVal) Then
-            Dim rpm = New List(Of Object)()
-            rpm = convertRPN(TextBox_form.Text)
-            answer = calcRPN(rpm)
-            Label_answer.Text = answer
+        'Try
+        If currentVal IsNot Nothing Then
+            If Not fourArithOp.IsMatch(currentVal) Then
+                Dim rpm = New List(Of Object)()
+                rpm = convertRPN(TextBox_form.Text)
+                answer = calcRPN(rpm)
+                Label_answer.Text = answer
+            End If
         End If
+        'Catch ex As Exception
+        'Label_answer.Text = "error"
+        'End Try
+
     End Sub
 
     Private Sub Button_ans_Click(sender As System.Object, e As System.EventArgs) Handles Button_ans.Click
@@ -356,18 +372,21 @@ Public Class Form_calc
     End Sub
 
     Private Sub Button_bs_Click(sender As System.Object, e As System.EventArgs) Handles Button_bs.Click
-        TextBox_form.Text = TextBox_form.Text.Remove(TextBox_form.Text.Length - 1, 1)
-        currentVal = Strings.Right(TextBox_form.Text, 1)
-        If Not allOp.IsMatch(currentVal) Then
-            If allOp.IsMatch(TextBox_form.Text) Then
-                enterNum = TextBox_form.Text.Substring(
-                    TextBox_form.Text.LastIndexOfAny(New Char() {"+", "-", "×", "÷"}) + 1,
-                    TextBox_form.Text.Length - TextBox_form.Text.LastIndexOfAny(New Char() {"+", "-", "×", "÷"}) - 1
-                )
-            Else
-                enterNum = TextBox_form.Text
+        If TextBox_form.Text.Length > 0 Then
+            TextBox_form.Text = TextBox_form.Text.Remove(TextBox_form.Text.Length - 1, 1)
+            currentVal = Strings.Right(TextBox_form.Text, 1)
+            If Not allOp.IsMatch(currentVal) Then
+                If allOp.IsMatch(TextBox_form.Text) Then
+                    enterNum = TextBox_form.Text.Substring(
+                        TextBox_form.Text.LastIndexOfAny(New Char() {"+", "-", "×", "÷"}) + 1,
+                        TextBox_form.Text.Length - TextBox_form.Text.LastIndexOfAny(New Char() {"+", "-", "×", "÷"}) - 1
+                    )
+                Else
+                    enterNum = TextBox_form.Text
+                End If
             End If
         End If
+
     End Sub
 
     Private Sub Form_calc_KeyPress(sender As System.Object, e As System.Windows.Forms.KeyPressEventArgs) Handles MyBase.KeyPress
